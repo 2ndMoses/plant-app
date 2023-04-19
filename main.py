@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QWidget, QVBoxLayout
 from PySide6.QtGui import QAction, QPainter
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPointF
 from plant_container import PlantContainer
 from seed_parameters import Seed
 from plant_growth import PlantGrowthTiming
@@ -10,9 +10,9 @@ import signal
 from user_interactions import WateringInteraction, FertilizingInteraction
 from plant_maintenance import HydrationBar, Plant
 from PySide6.QtWidgets import QApplication, QGraphicsScene, QGraphicsView
+from plant_components import *
 
-
-app = QApplication([])
+#app = QApplication([])
 
 scene = QGraphicsScene()
 view = QGraphicsView(scene)
@@ -20,9 +20,15 @@ view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 view.setRenderHint(QPainter.Antialiasing)
 
-container = PlantContainer()
-scene.addItem(container)
+# Add the plant container to the scene
+stem_position = QPointF(0, 0)
+initial_image_path = "path/to/initial_image.png"
+final_image_path = "path/to/final_image.png"
+min_height = 0
+max_height = 100
 
+
+# Add the plant container to the scene
 class CustomMainWindow(QMainWindow):
     def __init__(self, plant_growth_simulator, plant_container):
         super().__init__()
@@ -70,7 +76,7 @@ class CustomMainWindow(QMainWindow):
 class PlantGrowthSimulator:
     def __init__(self):
         self.app = QApplication([])
-        self.plant_container = PlantContainer()
+        self.plant_container = PlantContainer(stem_position, initial_image_path, final_image_path, min_height, max_height)
 
         self.plant_growth_timing = PlantGrowthTiming(self.plant_container)
         self.plant_growth_timing.start()
@@ -101,6 +107,13 @@ class PlantGrowthSimulator:
     def run(self):
         self.main_window.show()
         self.app.exec()
+
+
+container = PlantContainer(stem_position, initial_image_path, final_image_path, min_height, max_height)
+scene.addItem(container)
+#stem = Stem(stem_position, initial_image_path, final_image_path, min_height, max_height)
+#stem.init_pixmaps()
+
 
 if __name__ == "__main__":
     simulator = PlantGrowthSimulator()
