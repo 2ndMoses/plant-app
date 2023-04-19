@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QWidget, QVBoxLayout
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QAction, QPainter
 from PySide6.QtCore import Qt
 from plant_container import PlantContainer
 from seed_parameters import Seed
@@ -9,13 +9,10 @@ import sys
 import signal
 from user_interactions import WateringInteraction, FertilizingInteraction
 from plant_maintenance import HydrationBar, Plant
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QGraphicsScene, QGraphicsView
-from plant_container import PlantContainer
+
 
 app = QApplication([])
-
-
 
 scene = QGraphicsScene()
 view = QGraphicsView(scene)
@@ -25,23 +22,6 @@ view.setRenderHint(QPainter.Antialiasing)
 
 container = PlantContainer()
 scene.addItem(container)
-
-
-
-
-def main():
-    plant_growth_simulator = PlantGrowthTiming()
-    plant_growth_simulator.start()  # Use the default interval of 1000 ms (1 second)
-
-
-#class CustomMainWindow(QMainWindow):
- #   def __init__(self, plant_growth_simulator):
-class CustomMainWindow(QMainWindow):
-    def __init__(self, plant_growth_simulator, plant_container):
-        super().__init__()
-        self.plant_growth_simulator = plant_growth_simulator
-        self.plant_container = plant_container
-
 
 class CustomMainWindow(QMainWindow):
     def __init__(self, plant_growth_simulator, plant_container):
@@ -83,28 +63,10 @@ class CustomMainWindow(QMainWindow):
         # Show the context menu
         context_menu.exec(event.globalPos())
 
-
     def generate_random_seed(self):
         random_seed = Seed.random_seed()
         self.plant_container.generate_plant(random_seed)
 
-'''class PlantGrowthSimulator:
-    def __init__(self):
-        self.app = QApplication([])
-        self.plant_container = PlantContainer()
-
-        self.load_plant_state()
-
-        self.plant_growth_timing = PlantGrowthTiming()
-        self.main_window = CustomMainWindow(self.plant_container)
-        self.main_window.setWindowTitle("Plant Growth Simulator")
-        self.main_window.setAttribute(Qt.WA_TranslucentBackground)
-        self.main_window.setCentralWidget(self.plant_container)
-
-        ##To handle saving the plant state when the computer is turned off, you can catch system signals such as SIGINT (Ctrl+C) and SIGTERM (system termination request) using the signal library
-        signal.signal(signal.SIGINT, self.handle_signal)
-        signal.signal(signal.SIGTERM, self.handle_signal)
-'''
 class PlantGrowthSimulator:
     def __init__(self):
         self.app = QApplication([])
@@ -113,7 +75,7 @@ class PlantGrowthSimulator:
         self.plant_growth_timing = PlantGrowthTiming(self.plant_container)
         self.plant_growth_timing.start()
 
-        self.main_window = CustomMainWindow(self, self.plant_container)  # Pass 'self' instead of 'self.plant_growth_timing'
+        self.main_window = CustomMainWindow(self, self.plant_container)
         self.main_window.setWindowTitle("Plant Growth Simulator")
         self.main_window.setAttribute(Qt.WA_TranslucentBackground)
         self.main_window.setCentralWidget(self.plant_container)
@@ -123,18 +85,14 @@ class PlantGrowthSimulator:
         signal.signal(signal.SIGINT, self.handle_signal)
         signal.signal(signal.SIGTERM, self.handle_signal)
 
-    # ...
-
     def save_plant_state(self):
         PlantStateIO.save_plant_state(self.main_window, self.plant_container.current_plant)
-
 
     def load_plant_state(self):
         plant_state = PlantStateIO.load_plant_state(self.main_window)
         if plant_state is not None:
             self.plant_container.current_plant = plant_state
             self.plant_container.update()
-
 
     def handle_signal(self, signum, frame):
         self.save_plant_state()
@@ -144,12 +102,6 @@ class PlantGrowthSimulator:
         self.main_window.show()
         self.app.exec()
 
-view.show()
-
-
 if __name__ == "__main__":
     simulator = PlantGrowthSimulator()
     simulator.run()
-
- app.exec()
-   
