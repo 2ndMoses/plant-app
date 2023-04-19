@@ -116,14 +116,15 @@ from PySide6.QtGui import QPixmap
 class Stem:
     def __init__(self, position, initial_image_path, final_image_path, min_height, max_height):
         self.position = position
-        self.initial_image_path = initial_image_path
-        self.final_image_path = final_image_path
+        self.height = min_height
         self.min_height = min_height
         self.max_height = max_height
-        self.height = min_height
-        self.initial_image = None
-        self.final_image = None
-        self.current_image = None
+        self.growth_progress = 0.0
+        self.initial_image_path = initial_image_path
+        self.final_image_path = final_image_path
+        self.initial_pixmap = None
+        self.final_pixmap = None
+
 
     def init_pixmaps(self):
         self.initial_image = QPixmap(self.initial_image_path)
