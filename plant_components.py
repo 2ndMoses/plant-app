@@ -131,6 +131,9 @@ class Stem:
         scale_factor = self.height / self.initial_image.height()
         width = int(self.initial_image.width() * scale_factor)
         height = int(self.initial_image.height() * scale_factor)
+        current_image = QPixmap(self.initial_image.size())
+        current_image.fill(Qt.transparent)
+
 
         # Use growth progress to interpolate between initial and final images
         current_image = QPixmap(self.initial_image.size())
