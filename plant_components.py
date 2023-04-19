@@ -1,7 +1,7 @@
 from enum import Enum, auto
 import random
-from PySide6.QtGui import QPixmap, QPainter
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap, QPainter
 
 
 
@@ -16,13 +16,13 @@ FLOWER_DISTANCE = 10  # The distance between consecutive flowers in pixels
 BRANCH_HEIGHT_RATIO = 100
 
 # Initialize the stem with the calculated position
-initial_image_stem = "path/to/initial/stem/image"
-final_image_stem = "path/to/final/stem/image"
+initial_image_path = "steminitial_image_stem/to/initial/stem/image"
+final_image_path = "steminitial_image_stem/to/final/stem/image"
 # Initialize the leaf with the calculated positions
-initial_image_l_leaf = "path/to/initial/leaf/image"
-final_image_l_leaf = "path/to/final/leaf/image"
-initial_image_r_leaf = "path/to/initial/leaf/image"
-final_image_r_leaf = "path/to/final/leaf/image"
+initial_image_l_leaf = "steminitial_image_stem/to/initial/leaf/image"
+final_image_l_leaf = "steminitial_image_stem/to/final/leaf/image"
+initial_image_r_leaf = "steminitial_image_stem/to/initial/leaf/image"
+final_image_r_leaf = "steminitial_image_stem/to/final/leaf/image"
 
 
 class Plant:
@@ -111,17 +111,26 @@ class GrowthStage(Enum):
 def stem_height(growth_progress, min_height, max_height):
     return min_height + growth_progress * (max_height - min_height)
 
+from PySide6.QtGui import QPixmap
 
 class Stem:
     def __init__(self, position, initial_image_path, final_image_path, min_height, max_height):
         self.position = position
-        self.initial_image = QPixmap(initial_image_path)
-        self.final_image = QPixmap(final_image_path)
+        self.initial_image_path = initial_image_path
+        self.final_image_path = final_image_path
         self.min_height = min_height
         self.max_height = max_height
         self.height = min_height
-        self.current_image = self.initial_image
+        self.initial_image = None
+        self.final_image = None
+        self.current_image = None
 
+    def init_pixmaps(self):
+        self.initial_image = QPixmap(self.initial_image_path)
+        self.final_image = QPixmap(self.final_image_path)
+        self.current_image = QPixmap(self.initial_image.size())
+
+    
     def grow(self, growth_progress):
         self.height = stem_height(growth_progress, self.min_height, self.max_height)
         self.update_image(growth_progress)
@@ -133,7 +142,7 @@ class Stem:
         height = int(self.initial_image.height() * scale_factor)
         current_image = QPixmap(self.initial_image.size())
         current_image.fill(Qt.transparent)
-
+  
 
         # Use growth progress to interpolate between initial and final images
         current_image = QPixmap(self.initial_image.size())
@@ -169,7 +178,7 @@ stem_y = window_height - min_height  # Use min_height instead of stem.height
 stem_position = (stem_x, stem_y)
 
 
-stem = Stem(stem_position, initial_image_stem, final_image_stem, min_height, max_height)
+stem = Stem(stem_position, initial_image_path, final_image_path, min_height, max_height)
 
 class Branch:
     def __init__(self, position, initial_image, final_image):

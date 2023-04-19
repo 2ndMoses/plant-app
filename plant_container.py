@@ -1,16 +1,17 @@
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget,QGraphicsItem
 from PySide6.QtCore import QRectF
 from PySide6.QtGui import QPainter 
 from plant_components import GrowthStage, Stem, Branch, Leaf, Bud
 from seed_parameters import Seed
 from plant_growth import PlantGrowth
+from plant_components import *
 
 #Update the PlantContainer class: Modify the PlantContainer class to manage the plant's growth stages and components. Add a property for the current growth stage, and initialize the component classes as needed:
-class PlantContainer(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+class PlantContainer(QGraphicsItem):
+    def __init__(self, stem_position, initial_image_path, final_image_path, min_height, max_height):
+        super().__init__()
+        self.stem = Stem(stem_position, initial_image_path, final_image_path, min_height, max_height)
         self.growth_stage = GrowthStage.SEEDLING
-        self.stem = Stem()
         self.branches = []
         self.leaves = []
         self.buds = []
