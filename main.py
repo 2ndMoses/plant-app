@@ -9,6 +9,23 @@ import sys
 import signal
 from user_interactions import WateringInteraction, FertilizingInteraction
 from plant_maintenance import HydrationBar, Plant
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QGraphicsScene, QGraphicsView
+from plant_container import PlantContainer
+
+app = QApplication([])
+
+
+
+scene = QGraphicsScene()
+view = QGraphicsView(scene)
+view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+view.setRenderHint(QPainter.Antialiasing)
+
+container = PlantContainer()
+scene.addItem(container)
+
 
 
 
@@ -127,8 +144,12 @@ class PlantGrowthSimulator:
         self.main_window.show()
         self.app.exec()
 
+view.show()
 
 
 if __name__ == "__main__":
     simulator = PlantGrowthSimulator()
     simulator.run()
+
+ app.exec()
+   
