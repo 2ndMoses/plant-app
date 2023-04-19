@@ -109,7 +109,7 @@ class PlantGrowthSimulator:
         self.app.exec()
 
 
-container = PlantContainer(stem_position, initial_image_path, final_image_path, min_height, max_height)
+container = PlantContainer(QPoint(400, 400), initial_image_path, final_image_path, min_height, max_height)
 scene.addItem(container)
 #stem = Stem(stem_position, initial_image_path, final_image_path, min_height, max_height)
 #stem.init_pixmaps()
