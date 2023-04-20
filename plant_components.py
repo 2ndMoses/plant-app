@@ -16,13 +16,13 @@ FLOWER_DISTANCE = 10  # The distance between consecutive flowers in pixels
 BRANCH_HEIGHT_RATIO = 100
 
 # Initialize the stem with the calculated position
-initial_image_path = "steminitial_image_stem/to/initial/stem/image"
-final_image_path = "steminitial_image_stem/to/final/stem/image"
+initial_image_path = "C:/Users/Nick/Desktop/pictures/Stem/stem aeedling.png"
+final_image_path = "C:/Users/Nick/Desktop/pictures/Stem/stem adult.png"
 # Initialize the leaf with the calculated positions
-initial_image_l_leaf = "steminitial_image_stem/to/initial/leaf/image"
-final_image_l_leaf = "steminitial_image_stem/to/final/leaf/image"
-initial_image_r_leaf = "steminitial_image_stem/to/initial/leaf/image"
-final_image_r_leaf = "steminitial_image_stem/to/final/leaf/image"
+initial_image_l_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Seedling Left/Leaf Seedling Left.png"
+final_image_l_leaf = ":/Users/Nick/Desktop/pictures/Leaf Left/Leaf Left Adult.png"
+initial_image_r_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Seedling Right/Leaf Seedling Right.png"
+final_image_r_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Right/Leaf Right Adult.png"
 
 
 class Plant:
@@ -124,7 +124,6 @@ class Stem:
         self.final_image_path = final_image_path
         self.initial_pixmap = None
         self.final_pixmap = None
-
 
     def init_pixmaps(self):
         self.initial_image = QPixmap(self.initial_image_path)
