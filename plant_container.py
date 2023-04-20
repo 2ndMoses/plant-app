@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget,QGraphicsItem
+from PySide6.QtWidgets import QWidget,QGraphicsItem, QGraphicsScene
 from PySide6.QtCore import QRectF
 from PySide6.QtGui import QPainter 
 from plant_components import GrowthStage, Stem, Branch, Leaf, Bud
@@ -17,6 +17,9 @@ class PlantContainer(QGraphicsItem):
         self.buds = []
         self.seed = Seed.random_seed()
         self.plant_growth = PlantGrowth(self.stem, self.branches, self.leaves, self.buds, self.seed)
+        self.scene = QGraphicsScene()
+        self.setScene(self.scene)
+
 
     def some_method(self, elapsed_time):
         self.plant_growth.update_growth(self.growth_stage, elapsed_time)
