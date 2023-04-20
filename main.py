@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QWidget, QVBoxLayout
 from PySide6.QtGui import QAction, QPainter
-from PySide6.QtCore import Qt, QPointF
+from PySide6.QtCore import Qt, QPointF, QPoint
 from plant_container import PlantContainer
 from seed_parameters import Seed
 from plant_growth import PlantGrowthTiming
@@ -12,7 +12,12 @@ from plant_maintenance import HydrationBar, Plant
 from PySide6.QtWidgets import QApplication, QGraphicsScene, QGraphicsView
 from plant_components import *
 
+import logging
+import traceback
 #app = QApplication([])
+
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
+
 
 scene = QGraphicsScene()
 view = QGraphicsView(scene)
@@ -22,10 +27,10 @@ view.setRenderHint(QPainter.Antialiasing)
 
 # Add the plant container to the scene
 stem_position = QPointF(0, 0)
-initial_image_path = "path/to/initial_image.png"
-final_image_path = "path/to/final_image.png"
+initial_image_path = "C:/Users/Nick/Desktop/pictures/stem seedling"
+final_image_path = "C:/Users/Nick/Desktop/pictures/stem adult"
 min_height = 0
-max_height = 100
+max_height = 300
 
 
 # Add the plant container to the scene
@@ -54,6 +59,9 @@ class CustomMainWindow(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+        logging.debug('customwindow')
+
+
     def contextMenuEvent(self, event):
         context_menu = QMenu(self)
 
@@ -69,9 +77,15 @@ class CustomMainWindow(QMainWindow):
         # Show the context menu
         context_menu.exec(event.globalPos())
 
+        logging.debug('contextMenu')
+
+
     def generate_random_seed(self):
         random_seed = Seed.random_seed()
         self.plant_container.generate_plant(random_seed)
+
+
+
 
 class PlantGrowthSimulator:
     def __init__(self):
@@ -79,7 +93,6 @@ class PlantGrowthSimulator:
         self.plant_container = PlantContainer(stem_position, initial_image_path, final_image_path, min_height, max_height)
 
         self.plant_growth_timing = PlantGrowthTiming(self.plant_container)
-        self.plant_growth_timing.start()
 
         self.main_window = CustomMainWindow(self, self.plant_container)
         self.main_window.setWindowTitle("Plant Growth Simulator")
@@ -90,6 +103,8 @@ class PlantGrowthSimulator:
 
         signal.signal(signal.SIGINT, self.handle_signal)
         signal.signal(signal.SIGTERM, self.handle_signal)
+        scene.addItem(self.plant_container)
+
 
     def save_plant_state(self):
         PlantStateIO.save_plant_state(self.main_window, self.plant_container.current_plant)
@@ -105,9 +120,13 @@ class PlantGrowthSimulator:
         sys.exit(0)
     
     def run(self):
-        self.main_window.show()
-        self.app.exec()
-
+        try:
+            self.plant_growth_timing.start()
+            self.main_window.show()
+            self.app.exec()
+        except Exception as e:
+            logging.exception(f"Unhandled exception occurred: {e}")
+            traceback.print_exc()
 
 container = PlantContainer(QPoint(400, 400), initial_image_path, final_image_path, min_height, max_height)
 scene.addItem(container)
@@ -117,4 +136,9 @@ scene.addItem(container)
 
 if __name__ == "__main__":
     simulator = PlantGrowthSimulator()
-    simulator.run()
+  #  simulator.run()
+    try:
+        simulator.run()
+    except Exception as e:
+        logging.exception(f"Unhandled exception occurred: {e}")
+        traceback.print_exc()
