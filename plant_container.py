@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget,QGraphicsItem, QGraphicsScene
+from PySide6.QtWidgets import QWidget,QGraphicsItem, QGraphicsScene, QGraphicsView
 from PySide6.QtCore import QRectF
 from PySide6.QtGui import QPainter 
 from plant_components import GrowthStage, Stem, Branch, Leaf, Bud
@@ -7,18 +7,44 @@ from plant_growth import PlantGrowth
 from plant_components import *
 
 #Update the PlantContainer class: Modify the PlantContainer class to manage the plant's growth stages and components. Add a property for the current growth stage, and initialize the component classes as needed:
-class PlantContainer(QGraphicsItem):
-    def __init__(self, stem_position, initial_image_path, final_image_path, min_height, max_height):
+from PySide6.QtWidgets import QGraphicsObject
+from PySide6.QtCore import QRectF
+
+class PlantContainer(QGraphicsObject):
+    def __init__(self, scene, stem_position, initial_image_path, final_image_path, min_height, max_height):
         super().__init__()
-        self.stem = Stem(stem_position, initial_image_path, final_image_path, min_height, max_height)
-        self.growth_stage = GrowthStage.SEEDLING
+        self.scene = scene
+        self.stem_position = stem_position
+        self.initial_image_path = initial_image_path
+        self.final_image_path = final_image_path
+        self.min_height = min_height
+        self.max_height = max_height
+
+        self.stem = Stem(self.stem_position, self.initial_image_path, self.final_image_path, self.min_height, self.max_height)
         self.branches = []
         self.leaves = []
         self.buds = []
-        self.seed = Seed.random_seed()
-        self.plant_growth = PlantGrowth(self.stem, self.branches, self.leaves, self.buds, self.seed)
-        self.scene = QGraphicsScene()
-        self.setScene(self.scene)
+
+        self.scene.addItem(self.stem)
+
+        logging.debug('PlantContainer')
+
+    # ... The rest of the class ...
+
+    def boundingRect(self):
+        # You should return a QRectF object representing the bounding box of your plant container.
+        # This is an example, you may need to adjust the values to fit your case.
+        return QRectF(0, 0, 200, 200)
+
+    def paint(self, painter, option, widget):
+        # Render components based on the growth stage
+        self.stem.render(painter)
+        for branch in self.branches:
+            branch.render(painter)
+        for leaf in self.leaves:
+            leaf.render(painter)
+        for bud in self.buds:
+            bud.render(painter)
 
 
     def some_method(self, elapsed_time):

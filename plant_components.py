@@ -1,9 +1,13 @@
 from enum import Enum, auto
 import random
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGraphicsItem
+
+from PySide6.QtCore import Qt, QRectF
 from PySide6.QtGui import QPixmap, QPainter
+import traceback
+import logging
 
-
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s:%(message)s')
 
 
 
@@ -16,37 +20,53 @@ FLOWER_DISTANCE = 10  # The distance between consecutive flowers in pixels
 BRANCH_HEIGHT_RATIO = 100
 
 # Initialize the stem with the calculated position
-initial_image_path = "C:/Users/Nick/Desktop/pictures/Stem/stem aeedling.png"
+initial_image_path = "C:/Users/Nick/Desktop/pictures/Stem/stem seedling.png"
 final_image_path = "C:/Users/Nick/Desktop/pictures/Stem/stem adult.png"
 # Initialize the leaf with the calculated positions
-initial_image_l_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Seedling Left/Leaf Seedling Left.png"
-final_image_l_leaf = ":/Users/Nick/Desktop/pictures/Leaf Left/Leaf Left Adult.png"
-initial_image_r_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Seedling Right/Leaf Seedling Right.png"
-final_image_r_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Right/Leaf Right Adult.png"
+initial_image_l_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Seedling Left/leaf left seedling.png"
+final_image_l_leaf = ":/Users/Nick/Desktop/pictures/Leaf Left/leaf left adult.png"
+initial_image_r_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Seedling Right/leaf right seedling.png"
+final_image_r_leaf = "C:/Users/Nick/Desktop/pictures/Leaf Right/leaf right adult.png"
+#Branches
+initial_image_r_branch = "C:/Users/Nick/Desktop/pictures/Branch Right/branch right small.png" 
+final_image_r_branch = "C:/Users/Nick/Desktop/pictures/Branch Right/branch right.png"
+initial_image_l_branch = "C:/Users/Nick/Desktop/pictures/Branch Left/branch left small.png" 
+final_image_l_branch = "C:/Users/Nick/Desktop/pictures/Branch Left/branch left.png"
+#Buds
+initial_image_bud = "C:/Users/Nick/Desktop/pictures/Bud/bud start.png"
+final_image_bud = "C:/Users/Nick/Desktop/pictures/Bud/bud.png"
+
+
 
 
 class Plant:
-    def __init__(self):
-        self.stem = Stem(...)
+#    def __init__(self, seed):
+    def __init__(self, seed, initial_image_path, final_image_path, min_height, max_height):
+
+        self.seed = seed
+        self.stem = Stem(initial_image_path, final_image_path, min_height, max_height)
         self.branches = []
         self.leaves = []
         self.buds = []
         self.flowers = []
 
+        self.seed = seed
+        self.stem = Stem(initial_image_path, final_image_path, min_height, max_height)
+
         self.last_branch_position = 0  # Initialize the last branch position
         self.growth_progress = 0  # Initialize growth progress to 0
 
 
-    def grow(self, elapsed_time, dx, dy, leaf_dx, leaf_dy, initial_image, final_image):
+    def grow(self, elapsed_time, dx, dy, leaf_dx, leaf_dy, initial_image_l_leaf, final_image_l_leaf, initial_image_r_leaf, final_image_r_leaf):
         self.update_growth_progress(elapsed_time)
-        self.add_branches_and_leaves(dx, dy, leaf_dx, leaf_dy, initial_image, final_image)
+        self.add_branches_and_leaves(dx, dy, leaf_dx, leaf_dy, initial_image_l_leaf, final_image_l_leaf, initial_image_r_leaf, final_image_r_leaf)
         self.add_buds_and_flowers()
         self.stem.grow(self.growth_progress)
-
+    
         for branch in self.branches:
             branch.grow(elapsed_time)
-            branch.add_sub_branches(dx, dy, leaf_dx, leaf_dy, initial_image, final_image)
-
+            branch.add_sub_branches(dx, dy, leaf_dx, leaf_dy, initial_image_l_branch, final_image_l_branch, initial_image_r_branch, final_image_r_branch)
+    
     def update_growth_progress(self, elapsed_time):
         growth_rate = self.get_growth_rate()  # Get the growth rate from the plant's attributes
         self.growth_progress += growth_rate * elapsed_time
@@ -55,7 +75,7 @@ class Plant:
         self.growth_progress = min(max(self.growth_progress, 0), 1)
 
 
-    def add_branches_and_leaves(self):
+    def add_branches_and_leaves(self, dx, dy, leaf_dx, leaf_dy, initial_image_l_leaf, final_image_l_leaf, initial_image_r_leaf, final_image_r_leaf):
         num_branches = self.calculate_number_of_branches()
         if len(self.branches) < num_branches * 2:  # Multiply by 2 since we add 2 branches at once
             # Add branches on both sides of the stem
@@ -70,17 +90,21 @@ class Plant:
 
             # Add leaves for the new branches
             #leaf_dx, and leaf_dy, represent the horizontal and vertical distance between the branches and the leaves
-            leaf_dx = LEAF_DISTANCE(random.random() - 0.5)
-            leaf_dy = LEAF_DISTANCE(random.random() - 0.5)
-            left_leaf_position = (left_branch_position[0] - leaf_dx, left_branch_position[1] + leaf_dy)
-            right_leaf_position = (right_branch_position[0] + leaf_dx, right_branch_position[1] + leaf_dy)
+        # Add leaves for the new branches
+        leaf_dx = LEAF_DISTANCE(random.random() - 0.5)
+        leaf_dy = LEAF_DISTANCE(random.random() - 0.5)
+        left_leaf_position = (left_branch_position[0] - leaf_dx, left_branch_position[1] + leaf_dy)
+        right_leaf_position = (right_branch_position[0] + leaf_dx, right_branch_position[1] + leaf_dy)
 
-            left_leaf = Leaf(initial_image_l_leaf, final_image_l_leaf, left_leaf_position)
-            right_leaf = Leaf(initial_image_r_leaf, final_image_r_leaf, right_leaf_position)
-            self.leaves.extend([left_leaf, right_leaf])
+        left_leaf = Leaf(initial_image_l_leaf, final_image_l_leaf, left_leaf_position, leaf_type="left")
+        right_leaf = Leaf(initial_image_r_leaf, final_image_r_leaf, right_leaf_position, leaf_type="right")
+        self.leaves.extend([left_leaf, right_leaf])
 
             # Update the last branch position
-            self.last_branch_position += BRANCH_DISTANCE
+        self.last_branch_position += BRANCH_DISTANCE
+
+        logging.debug('ADDBRANCHES')
+
 
     def calculate_number_of_branches(self):
         # The number of branches is proportional to the height of the plant.
@@ -113,8 +137,9 @@ def stem_height(growth_progress, min_height, max_height):
 
 from PySide6.QtGui import QPixmap
 
-class Stem:
+class Stem(QGraphicsItem):
     def __init__(self, position, initial_image_path, final_image_path, min_height, max_height):
+        super().__init__()
         self.position = position
         self.height = min_height
         self.min_height = min_height
@@ -124,6 +149,9 @@ class Stem:
         self.final_image_path = final_image_path
         self.initial_pixmap = None
         self.final_pixmap = None
+
+        logging.info('Stem')
+
 
     def init_pixmaps(self):
         self.initial_image = QPixmap(self.initial_image_path)
@@ -157,6 +185,11 @@ class Stem:
 
         self.current_image = current_image
 
+    def boundingRect(self):
+        # You should return a QRectF object representing the bounding box of your stem.
+        # This is an example, you may need to adjust the values to fit your case.
+        return QRectF(0, 0, 10, self.height)
+
     def draw(self, painter):
         # Draw the stem image at the specified position
         painter.drawPixmap(self.position, self.current_image)
@@ -180,8 +213,9 @@ stem_position = (stem_x, stem_y)
 
 stem = Stem(stem_position, initial_image_path, final_image_path, min_height, max_height)
 
-class Branch:
+class Branch(QGraphicsItem):
     def __init__(self, position, initial_image, final_image):
+        super().__init__()
         self.position = position
         self.sub_branches = []  # Initialize the sub-branches list
         self.last_sub_branch_position = 0  # Initialize the last sub-branch position
@@ -191,8 +225,8 @@ class Branch:
             left_sub_branch_position = (self.x - dx, self.last_sub_branch_position + BRANCH_DISTANCE)
             right_sub_branch_position = (self.x + dx, self.last_sub_branch_position + BRANCH_DISTANCE)
 
-            left_sub_branch = Branch(left_sub_branch_position, initial_image, final_image)
-            right_sub_branch = Branch(right_sub_branch_position, initial_image, final_image)
+            left_sub_branch = Branch(left_sub_branch_position, initial_image_l_branch, final_image_l_branch)
+            right_sub_branch = Branch(right_sub_branch_position, initial_image_r_branch, final_image_r_branch)
             self.sub_branches.extend([left_sub_branch, right_sub_branch])
 
             # Add leaves for the new sub-branches
@@ -211,13 +245,23 @@ class Branch:
 
 
 
-class Leaf:
-    def __init__(self, position, initial_image, final_image):
+class Leaf(QGraphicsItem):
+    def __init__(self, position, initial_image_l_leaf, final_image_l_leaf, leaf_type="left"):
         self.position = position
-        self.initial_image = initial_image
-        self.final_image = final_image
+        self.initial_image = initial_image_l_leaf
+        self.final_image = final_image_l_leaf
         self.growth_progress = 0.0
         self.current_image = self.initial_image
+        self.leaf_type = leaf_type
+
+    def __init__(self, position, initial_image_r_leaf, final_image_r_leaf, leaf_type="right"):
+        self.position = position
+        self.initial_image = initial_image_r_leaf
+        self.final_image = final_image_r_leaf
+        self.growth_progress = 0.0
+        self.current_image = self.initial_image
+        self.leaf_type = leaf_type
+
 
     def update_growth_progress(self, delta_progress):
         self.growth_progress += delta_progress
@@ -234,11 +278,49 @@ class Leaf:
         self.current_image = self.initial_image.scaled(new_width, new_height)
 
     def render(self):
-        pass # Render the leaf
+        if self.leaf_type == "left":
+            pass  # Render the left leaf
+        elif self.leaf_type == "right":
+            pass  # Render the right leaf
+        else:
+            raise ValueError("Invalid leaf type. Expected 'left' or 'right'.")
+        
 
-class Bud:
-    def __init__(self):
-        pass# Initialize bud properties
+    
+
+class Bud(QGraphicsItem):
+    def __init__(self, initial_image_bud, final_image_bud, min_height, max_height):
+        super().__init__()
+        self.initial_image = QPixmap(initial_image_bud)
+        self.final_image = QPixmap(final_image_bud)
+        self.min_height = min_height
+        self.max_height = max_height
+        self.current_image = self.initial_image
+        self.image_ratio = self.initial_image.width() / self.initial_image.height()
+        self.current_height = 0
+        self.current_width = 0
+        self.setPos(0, 0)
+
+    def boundingRect(self):
+        return QRectF(0, 0, self.current_width, self.current_height)
+
+    def paint(self, painter, option, widget):
+        painter.drawPixmap(0, 0, self.current_image)
+
+    def update_image(self, growth_progress):
+        pass
+
+    def grow(self, growth_progress):
+        self.update_image(growth_progress)
+        self.update_size()
+        self.update_position(growth_progress)
+
+    def update_size(self):
+        self.current_height = self.min_height + (self.max_height - self.min_height) * self.current_image.height() / self.final_image.height()
+        self.current_width = self.current_height * self.image_ratio
+
+    def update_position(self, growth_progress):
+        pass
 
     def render(self):
         pass# Render the bud

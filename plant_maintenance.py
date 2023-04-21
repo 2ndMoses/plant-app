@@ -29,7 +29,7 @@ class PlantMaintenance:
 
 
 
-class Plant(QObject):
+class PlantFood(QObject):
     hydrationChanged = Signal()
 
     def __init__(self, seed):

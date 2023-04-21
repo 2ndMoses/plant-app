@@ -2,9 +2,10 @@ from PySide6.QtGui import QAction
 
 class WateringInteraction:
     def __init__(self, plant_container):
-        self.plant_container = plant_container
-        self.water_action = QAction("Water Plant", self.plant_container)
+        self.water_action = QAction("Water Plant", None)
         self.water_action.triggered.connect(self.water_plant)
+        self.plant_container = plant_container
+
 
     def water_plant(self):
         # Update the plant's hydration level and growth rate based on the watering action.
